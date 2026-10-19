@@ -251,14 +251,14 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
+    <div className="flex h-screen text-white overflow-hidden" style={{ backgroundColor: '#1a1a1a' }}>
       <Sidebar 
         currentPage={currentPage} 
         setCurrentPage={setCurrentPage}
         notificacoes={notificacoes}
         setNotificacoes={setNotificacoes}
       />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto" style={{ backgroundColor: '#1a1a1a' }}>
         {renderPage()}
       </main>
     </div>
