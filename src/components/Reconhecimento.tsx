@@ -6,11 +6,12 @@ interface ReconhecimentoProps {
   pessoas: Pessoa[]
   logs: LogAcesso[]
   setLogs: (logs: LogAcesso[]) => void
+  addNotificacao: (tipo: 'sucesso' | 'alerta' | 'erro' | 'info', titulo: string, mensagem: string) => void
 }
 
 type Status = 'idle' | 'scanning' | 'recognized' | 'denied'
 
-export default function Reconhecimento({ pessoas, logs, setLogs }: ReconhecimentoProps) {
+export default function Reconhecimento({ pessoas, logs, setLogs, addNotificacao }: ReconhecimentoProps) {
   const [biometriaStatus, setBiometriaStatus] = useState<Status>('idle')
   const [vozStatus, setVozStatus] = useState<Status>('idle')
   const [recognizedPerson, setRecognizedPerson] = useState<Pessoa | null>(null)
@@ -38,11 +39,14 @@ export default function Reconhecimento({ pessoas, logs, setLogs }: Reconheciment
           horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           data: new Date().toISOString().split('T')[0],
           autorizado: true,
-          porta: 'Entrada Principal'
+          porta: 'Entrada Principal',
+          temperatura: 36.5 + Math.random() * 0.5
         }
         setLogs([novoLog, ...logs])
+        addNotificacao('sucesso', 'Acesso Liberado', `${random.nome} identificado(a) via biometria`)
       } else {
         setBiometriaStatus('denied')
+        addNotificacao('erro', 'Acesso Negado', 'Biometria não reconhecida')
       }
     }, 3000)
   }
@@ -69,11 +73,14 @@ export default function Reconhecimento({ pessoas, logs, setLogs }: Reconheciment
           horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           data: new Date().toISOString().split('T')[0],
           autorizado: true,
-          porta: 'Entrada Principal'
+          porta: 'Entrada Principal',
+          temperatura: 36.5 + Math.random() * 0.5
         }
         setLogs([novoLog, ...logs])
+        addNotificacao('sucesso', 'Acesso Liberado', `${random.nome} identificado(a) via voz`)
       } else {
         setVozStatus('denied')
+        addNotificacao('erro', 'Acesso Negado', 'Voz não reconhecida')
       }
     }, 3500)
   }
@@ -95,7 +102,7 @@ export default function Reconhecimento({ pessoas, logs, setLogs }: Reconheciment
 
       {/* Status do Acesso */}
       {accessGranted && (
-        <div className="mb-8 bg-green-900/30 border border-green-500/50 rounded-xl p-6 flex items-center gap-4 animate-pulse">
+        <div className="mb-8 bg-gradient-to-r from-green-900/40 to-emerald-900/30 border border-green-500/50 rounded-xl p-6 flex items-center gap-4 shadow-lg shadow-green-500/20">
           <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
             <Shield className="w-8 h-8 text-green-400" />
           </div>
@@ -113,8 +120,8 @@ export default function Reconhecimento({ pessoas, logs, setLogs }: Reconheciment
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Reconhecimento Biométrico */}
-        <div className="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden">
-          <div className="p-6 border-b border-gray-700 bg-gradient-to-r from-purple-900/30 to-transparent">
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 overflow-hidden">
+          <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-purple-900/30 to-transparent">
             <h2 className="text-xl font-bold text-white flex items-center gap-3">
               <Fingerprint className="w-6 h-6 text-purple-400" />
               Reconhecimento Biométrico
@@ -135,7 +142,7 @@ export default function Reconhecimento({ pessoas, logs, setLogs }: Reconheciment
                 <p className="text-gray-400 text-center mb-6">Posicione o dedo no leitor biométrico</p>
                 <button
                   onClick={handleBiometriaScan}
-                  className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50"
+                  className="px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl font-medium transition-all shadow-lg shadow-purple-600/30"
                 >
                   Iniciar Escaneamento
                 </button>
@@ -149,10 +156,6 @@ export default function Reconhecimento({ pessoas, logs, setLogs }: Reconheciment
                   <div className="absolute inset-4 bg-purple-900/40 rounded-full border border-purple-400 animate-pulse"></div>
                   <div className="absolute inset-8 bg-purple-800/50 rounded-full flex items-center justify-center">
                     <Fingerprint className="w-16 h-16 text-purple-300 animate-pulse" />
-                  </div>
-                  {/* Scanning animation */}
-                  <div className="absolute inset-0 rounded-full overflow-hidden">
-                    <div className="absolute w-full h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent animate-[scan_2s_ease-in-out_infinite]"></div>
                   </div>
                 </div>
                 <p className="text-purple-400 text-center animate-pulse font-medium">Escaneando impressão digital...</p>
@@ -211,8 +214,8 @@ export default function Reconhecimento({ pessoas, logs, setLogs }: Reconheciment
         </div>
 
         {/* Reconhecimento de Voz */}
-        <div className="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden">
-          <div className="p-6 border-b border-gray-700 bg-gradient-to-r from-green-900/30 to-transparent">
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 overflow-hidden">
+          <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-green-900/30 to-transparent">
             <h2 className="text-xl font-bold text-white flex items-center gap-3">
               <Volume2 className="w-6 h-6 text-green-400" />
               Reconhecimento de Voz
@@ -234,7 +237,7 @@ export default function Reconhecimento({ pessoas, logs, setLogs }: Reconheciment
                 <p className="text-gray-500 text-sm text-center mb-6 italic">"Olá, meu nome é [seu nome]"</p>
                 <button
                   onClick={handleVozScan}
-                  className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-green-600/30 hover:shadow-green-600/50"
+                  className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-medium transition-all shadow-lg shadow-green-600/30"
                 >
                   Iniciar Reconhecimento
                 </button>
@@ -255,7 +258,7 @@ export default function Reconhecimento({ pessoas, logs, setLogs }: Reconheciment
                   {[...Array(20)].map((_, i) => (
                     <div
                       key={i}
-                      className="w-1 bg-green-500 rounded-full animate-pulse"
+                      className="w-1 bg-gradient-to-t from-green-500 to-green-400 rounded-full animate-pulse"
                       style={{
                         height: `${Math.random() * 32 + 8}px`,
                         animationDelay: `${i * 0.05}s`,
@@ -320,14 +323,14 @@ export default function Reconhecimento({ pessoas, logs, setLogs }: Reconheciment
       </div>
 
       {/* Câmeras de Monitoramento */}
-      <div className="mt-8 bg-gray-800 rounded-2xl border border-gray-700 p-6">
+      <div className="mt-8 bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 p-6">
         <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
           <Camera className="w-5 h-5 text-blue-400" />
           Monitoramento em Tempo Real
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {['Entrada Principal', 'Entrada Executiva', 'Entrada de Serviço'].map((porta, i) => (
-            <div key={i} className="bg-gray-700/50 rounded-xl p-4 border border-gray-600">
+            <div key={i} className="bg-gray-700/30 rounded-xl p-4 border border-gray-600/50">
               <div className="aspect-video bg-gray-900 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800/50 to-transparent"></div>
                 <div className="text-center z-10">
